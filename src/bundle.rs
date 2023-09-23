@@ -1,7 +1,5 @@
 use crate::*;
 
-pub struct Item;
-
 #[macro_export]
 macro_rules! with_ignore {
   ($ignore:tt $($out:tt)*) => { $($out)* };
@@ -10,8 +8,8 @@ macro_rules! with_ignore {
 #[macro_export]
 macro_rules! repeat {
   (<$T:ident> ($($x:ident),* $(,)?) $r:expr) => {
-    $T::Bundle::map(
-      $T::Bundle::transpose::<Wire, ($(with_ignore!($x Item),)*)>(($($x,)*)),
+    $T::map(
+      $T::transpose::<Wire, ($(with_ignore!($x Wire),)*)>(($($x,)*)),
       |($($x,)*)| $r
     )
   };
@@ -24,15 +22,10 @@ pub trait Bundle {
   fn transpose<T, B: Bundle>(b: B::Of<Self::Of<T>>) -> Self::Of<B::Of<T>>;
 }
 
-pub trait Wiring: Copy {
-  type Bundle: Bundle<Of<Wire> = Self>;
-}
+pub trait Wiring: Copy + Bundle<Of<Wire> = Self> {}
+impl<T: Copy + Bundle<Of<Wire> = Self>> Wiring for T {}
 
-impl Wiring for Wire {
-  type Bundle = Item;
-}
-
-impl Bundle for Item {
+impl Bundle for Wire {
   type Of<T> = T;
   #[inline(always)]
   fn as_mut<T>(t: &mut Self::Of<T>) -> Self::Of<&mut T> {
@@ -66,9 +59,6 @@ macro_rules! impl_tuple {
         let mut x = X::map(x, |a| ($(Some(a.$i),)*));
         ($($T::transpose::<T, X>(X::map(X::as_mut(&mut x), |a| a.$i.take().unwrap())),)*)
       }
-    }
-    impl<$($T: Wiring,)*> Wiring for ($($T,)*) {
-      type Bundle = ($($T::Bundle,)*);
     }
   };
 }
@@ -104,12 +94,8 @@ impl<X: Bundle, const N: usize> Bundle for [X; N] {
   }
 }
 
-impl<X: Wiring, const N: usize> Wiring for [X; N] {
-  type Bundle = [X::Bundle; N];
-}
-
 pub fn last<T: Wiring>(t: &mut T) -> &mut Wire {
   let mut last = None;
-  T::Bundle::map(T::Bundle::as_mut(t), |x: &mut Wire| last = Some(x));
+  T::map(T::as_mut(t), |x: &mut Wire| last = Some(x));
   last.unwrap()
 }
