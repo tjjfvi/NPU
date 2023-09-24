@@ -1,5 +1,6 @@
 mod add;
 mod and;
+mod cell;
 mod lt;
 mod not;
 mod or;
