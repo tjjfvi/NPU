@@ -10,7 +10,7 @@ impl Circuit {
     self.not(x, co);
   }
   pub fn add<T: Wiring>(&mut self, a: T, b: T, o: T) {
-    let mut c = self.zero();
+    let mut c = zero();
     repeat!(<T> (a, b, o) {
       let (o0, c0, c1, c2) = self.wiring();
       self._half_add(a, b, o0, c0);

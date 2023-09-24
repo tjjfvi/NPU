@@ -1,3 +1,4 @@
+#![allow(type_alias_bounds)]
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
 

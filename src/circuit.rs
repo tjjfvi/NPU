@@ -9,6 +9,16 @@ pub struct Circuit {
   pub nands: Vec<(Wire, Wire, Wire)>,
 }
 
+pub fn zero<T: Wiring>() -> T {
+  repeat!(<T> () Wire(0))
+}
+pub fn one<T: Wiring>() -> T {
+  repeat!(<T> () Wire(1))
+}
+pub fn void<T: Wiring>() -> T {
+  repeat!(<T> () Wire(usize::MAX))
+}
+
 impl Circuit {
   pub fn new() -> Self {
     Circuit {
@@ -35,16 +45,10 @@ impl Circuit {
       Wire(i)
     })
   }
-  pub fn zero<T: Wiring>(&self) -> T {
-    repeat!(<T> () Wire(0))
-  }
-  pub fn void<T: Wiring>(&self) -> T {
-    repeat!(<T> () Wire(usize::MAX))
-  }
 
   pub fn nand<T: Wiring>(&mut self, a: T, b: T, o: T) {
     repeat!(<T> (a, b, o) {
-      if o != self.void() {
+      if o != void() {
         self.nands.push((a, b, o))
       }
     });
