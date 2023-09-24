@@ -7,9 +7,9 @@ macro_rules! with_ignore {
 
 #[macro_export]
 macro_rules! repeat {
-  (<$T:ident> ($($x:ident),* $(,)?) $r:expr) => {
-    $T::map(
-      $T::transpose::<Wire, ($(with_ignore!($x Wire),)*)>(($($x,)*)),
+  (<$A:ident> ($($x:ident),* $(,)?) $r:expr) => {
+    $A::map(
+      $A::transpose::<Wire, ($(with_ignore!($x Wire),)*)>(($($x,)*)),
       |($($x,)*)| $r
     )
   };
@@ -41,35 +41,58 @@ impl Bundle for Wire {
   }
 }
 
-macro_rules! impl_tuple {
-  ($($i:tt $T:ident)*) => {
+#[macro_export]
+macro_rules! impl_bundle {
+  (($($i:tt $A:ident),*)) => {
+    impl_bundle!(($($A: Bundle),*), ($($A,)*), (), ($($A::Of<X>,)*), ($($i $A),*));
+  };
+  (($($g:tt)*), $T:ty, ($($w:tt)*), $Of:ty, $($name:ident)? ($($i:tt $A:ty),*)) => {
     #[allow(unused)]
-    impl<$($T: Bundle,)*> Bundle for ($($T,)*) {
-      type Of<T> = ($($T::Of<T>,)*);
+    impl<$($g)*> Bundle for $T $($w)* {
+      type Of<X> = $Of;
       #[inline(always)]
-      fn as_mut<T>(t: &mut Self::Of<T>) -> Self::Of<&mut T> {
-        ($($T::as_mut(&mut t.$i),)*)
+      fn as_mut<X>(t: &mut Self::Of<X>) -> Self::Of<&mut X> {
+        $($name)? ($(<$A as Bundle>::as_mut(&mut t.$i),)*)
       }
       #[inline(always)]
-      fn map<T, U>(t: Self::Of<T>, mut f: impl FnMut(T) -> U) -> Self::Of<U> {
-        ($($T::map(t.$i, &mut f),)*)
+      fn map<X, Y>(t: Self::Of<X>, mut f: impl FnMut(X) -> Y) -> Self::Of<Y> {
+        $($name)? ($(<$A as Bundle>::map(t.$i, &mut f),)*)
       }
       #[inline(always)]
-      fn transpose<T, X: Bundle>(x: X::Of<Self::Of<T>>) -> Self::Of<X::Of<T>> {
-        let mut x = X::map(x, |a| ($(Some(a.$i),)*));
-        ($($T::transpose::<T, X>(X::map(X::as_mut(&mut x), |a| a.$i.take().unwrap())),)*)
+      fn transpose<X, Y: Bundle>(x: Y::Of<Self::Of<X>>) -> Self::Of<Y::Of<X>> {
+        let mut x = Y::map(x, |a| ($(Some(a.$i),)*));
+        $($name)? ($(<$A as Bundle>::transpose::<X, Y>(Y::map(Y::as_mut(&mut x), |a| a.$i.take().unwrap())),)*)
+      }
+    }
+  };
+  (($($g:tt)*), $T:ty, ($($w:tt)*), $Of:ty, $name:ident { $($i:tt $k:ident: $A:ty),* }) => {
+    #[allow(unused)]
+    impl<$($g)*> Bundle for $T $($w)* {
+      type Of<X> = $Of;
+      #[inline(always)]
+      fn as_mut<X>(t: &mut Self::Of<X>) -> Self::Of<&mut X> {
+        $name { $($k: <$A as Bundle>::as_mut(&mut t.$k),)* }
+      }
+      #[inline(always)]
+      fn map<X, Y>(t: Self::Of<X>, mut f: impl FnMut(X) -> Y) -> Self::Of<Y> {
+        $name { $($k: <$A as Bundle>::map(t.$k, &mut f),)* }
+      }
+      #[inline(always)]
+      fn transpose<X, Y: Bundle>(x: Y::Of<Self::Of<X>>) -> Self::Of<Y::Of<X>> {
+        let mut x = Y::map(x, |a| ($(Some(a.$k),)*));
+        $name { $($k: <$A as Bundle>::transpose::<X, Y>(Y::map(Y::as_mut(&mut x), |a| a.$i.take().unwrap())),)* }
       }
     }
   };
 }
 
-impl_tuple!();
-impl_tuple!(0 A);
-impl_tuple!(0 A 1 B);
-impl_tuple!(0 A 1 B 2 C);
-impl_tuple!(0 A 1 B 2 C 3 D);
-impl_tuple!(0 A 1 B 2 C 3 D 4 E);
-impl_tuple!(0 A 1 B 2 C 3 D 4 E 5 F);
+impl_bundle!(());
+impl_bundle!((0 A));
+impl_bundle!((0 A, 1 B));
+impl_bundle!((0 A, 1 B, 2 C));
+impl_bundle!((0 A, 1 B, 2 C, 3 D));
+impl_bundle!((0 A, 1 B, 2 C, 3 D, 4 E));
+impl_bundle!((0 A, 1 B, 2 C, 3 D, 4 E, 5 F));
 
 impl<X: Bundle, const N: usize> Bundle for [X; N] {
   type Of<T> = [X::Of<T>; N];

@@ -1,5 +1,5 @@
 [workspace]
-members = ["component-macro", "."]
+members = ["macros", "."]
 
 [package]
 name = "npu"
@@ -9,4 +9,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-component-macro = { path = "./component-macro" }
+npu-macros = { path = "./macros" }

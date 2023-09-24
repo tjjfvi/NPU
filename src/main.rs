@@ -2,7 +2,7 @@
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
 
-use component_macro::component;
+use npu_macros::*;
 
 mod bundle;
 mod circuit;

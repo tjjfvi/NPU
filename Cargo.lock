@@ -3,20 +3,20 @@
 version = 3
 
 [[package]]
-name = "component-macro"
+name = "npu"
+version = "0.1.0"
+dependencies = [
+ "npu-macros",
+]
+
+[[package]]
+name = "npu-macros"
 version = "0.1.0"
 dependencies = [
  "proc-macro-error",
  "proc-macro2",
  "quote",
  "syn 2.0.37",
-]
-
-[[package]]
-name = "npu"
-version = "0.1.0"
-dependencies = [
- "component-macro",
 ]
 
 [[package]]
