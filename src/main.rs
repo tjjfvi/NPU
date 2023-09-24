@@ -9,8 +9,8 @@ mod circuit;
 mod components;
 mod optimize;
 
-use bundle::*;
-use circuit::*;
+pub use bundle::*;
+pub use circuit::*;
 
 use std::time::Instant;
 
