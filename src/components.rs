@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 mod add;
 mod and;
 mod cell;

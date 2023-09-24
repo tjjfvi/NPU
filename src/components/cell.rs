@@ -9,7 +9,7 @@ type State<const N: usize> = (Wire, Id<N>, [Addr<N>; 3]);
 type Cell<const N: usize> = ([Addr<N>; 3], [Addr<N>; 3]);
 
 impl Circuit {
-  fn cell<const N: usize>(&mut self, cl: Wire, p: (Wire, Wire), (msg_out, msg_in): Cell<N>) {
+  fn cell<const N: usize>(&mut self, cl: Wire, p: (Wire, Wire), (msg_out, _msg_in): Cell<N>) {
     let (set_state, state) = self.wiring();
     self.delay_register::<State<N>>(cl, set_state, state);
     let msg_out_p01 = {

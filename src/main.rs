@@ -24,7 +24,9 @@ fn main() {
   let start = Instant::now();
   circuit.update();
   println!("update {:?}", Instant::now() - start);
-  // dbg!(out.map(|x| circuit.read_num(x)));
+  if out.len() < 100 {
+    dbg!(out.map(|x| circuit.read_num(x)));
+  }
 }
 
 fn flat<T, const X: usize, const Y: usize>(a: &[[T; X]; Y]) -> &[T; X * Y] {
