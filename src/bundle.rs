@@ -22,8 +22,8 @@ pub trait Bundle {
   fn transpose<T, B: Bundle>(b: B::Of<Self::Of<T>>) -> Self::Of<B::Of<T>>;
 }
 
-pub trait Wiring: Copy + Bundle<Of<Wire> = Self> {}
-impl<T: Copy + Bundle<Of<Wire> = Self>> Wiring for T {}
+pub trait Wiring: Copy + Bundle<Of<Wire> = Self> + 'static {}
+impl<T: Copy + Bundle<Of<Wire> = Self> + 'static> Wiring for T {}
 
 impl Bundle for Wire {
   type Of<T> = T;

@@ -2,9 +2,12 @@
 #![allow(incomplete_features)]
 #![feature(generic_const_exprs)]
 
+use component_macro::component;
+
 mod bundle;
 mod circuit;
 mod components;
+mod optimize;
 
 use bundle::*;
 use circuit::*;
@@ -12,7 +15,7 @@ use circuit::*;
 use std::time::Instant;
 
 fn main() {
-  let mut circuit = Circuit::new();
+  let mut circuit = Circuit::new(0);
   let nums = flat(&[[1, 5, 3, 2, 0, 9, 8, 4, 7, 6]; 800]).map(|x| circuit.num::<[Wire; 32]>(x));
   let start = Instant::now();
   let out = circuit.sort(nums);

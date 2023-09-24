@@ -1,11 +1,13 @@
 use crate::*;
 
+#[component]
+fn _sort_2<T: Wiring>(&mut self, a: T, b: T, x: T, y: T) {
+  let s = self.wiring();
+  self.lt(b, a, s);
+  self.swap(s, a, b, x, y);
+}
+
 impl Circuit {
-  fn _sort_2<T: Wiring>(&mut self, a: T, b: T, x: T, y: T) {
-    let s = self.wiring();
-    self.lt(b, a, s);
-    self.swap(s, a, b, x, y);
-  }
   pub fn sort<T: Wiring, const N: usize>(&mut self, mut arr: [T; N]) -> [T; N] {
     for (pi, p) in (0..).map(|i| (i, 1 << i)).take_while(|(_, p)| p < &N) {
       for k in (0..=pi).rev().map(|i| 1 << i) {
